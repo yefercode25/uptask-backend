@@ -1,6 +1,12 @@
 import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
-import { Usuario, IUsuarioModel } from '../models/Usuario';
+import { Usuario } from '../models/Usuario';
+
+interface UserRequest {
+  _id: any;
+  nombre: string;
+  email: string;
+}
 
 export const checkAuth = async (req: Request, res: Response, next: NextFunction) => { 
   const bearerToken = req.headers.authorization ?? '';
@@ -15,7 +21,7 @@ export const checkAuth = async (req: Request, res: Response, next: NextFunction)
   try {
     const token = bearerToken.replace('Bearer ', '');
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET!) as { _id: string };
-    req.usuario = await Usuario.findById(decodedToken._id).select("-password -confirmado -token -createdAt -updatedAt -__v") as IUsuarioModel;
+    req.usuario = await Usuario.findById(decodedToken._id).select("-password -confirmado -token -createdAt -updatedAt -__v") as UserRequest;
     return next();
   } catch (error) {
     console.log(error);
